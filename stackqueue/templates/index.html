@@ -3,63 +3,178 @@
 <head>
     <title>Stacks vs Queues</title>
     <style>
-        body { font-family: Arial; background: #f0f0f0; text-align: center; padding: 30px; }
-        h1 { color: #333; }
-        .container { display: flex; justify-content: center; gap: 50px; margin-top: 30px; }
-        .box { background: white; padding: 20px; border-radius: 10px; width: 300px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .box h2 { color: #4CAF50; }
-        input { padding: 8px; width: 60%; border-radius: 5px; border: 1px solid #ccc; }
-        button { padding: 8px 15px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; background: #4CAF50; color: white; }
-        button:hover { background: #45a049; }
-        .item { background: #e8f5e9; margin: 5px; padding: 8px; border-radius: 5px; }
-        .message { background: #fff3cd; padding: 10px; border-radius: 8px; margin: 20px auto; width: 400px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial; background: #1a1a2e; min-height: 100vh; padding: 30px; }
+        h1 { text-align: center; color: #e94560; font-size: 2.5rem; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #aaa; margin-bottom: 30px; }
+
+        .container { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; }
+
+        .box {
+            background: #16213e; padding: 25px;
+            border-radius: 15px; width: 320px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            border: 1px solid #0f3460;
+        }
+        .box h2 { color: #e94560; margin-bottom: 5px; }
+        .box p { color: #aaa; font-size: 0.85rem; margin-bottom: 15px; }
+
+        .input-row { display: flex; gap: 8px; margin-bottom: 10px; }
+        input {
+            flex: 1; padding: 10px; border-radius: 8px;
+            border: 1px solid #0f3460; background: #0f3460;
+            color: white; font-size: 1rem;
+        }
+        input::placeholder { color: #aaa; }
+
+        .btn-row { display: flex; gap: 8px; margin-bottom: 15px; }
+        button {
+            flex: 1; padding: 10px; border: none;
+            border-radius: 8px; cursor: pointer;
+            font-size: 0.9rem; font-weight: bold;
+            transition: all 0.2s;
+        }
+        button:hover { opacity: 0.85; transform: scale(1.03); }
+        .btn-green { background: #4CAF50; color: white; }
+        .btn-red   { background: #e94560; color: white; }
+        .btn-clear { background: #555; color: white; }
+
+        .item {
+            padding: 10px 15px; border-radius: 8px;
+            margin-bottom: 6px; font-size: 0.95rem;
+            display: flex; justify-content: space-between;
+        }
+        .item-top    { background: #1a472a; color: #4CAF50; border: 1px solid #4CAF50; }
+        .item-bottom { background: #4a1020; color: #e94560; border: 1px solid #e94560; }
+        .item-normal { background: #0f3460; color: white; }
+        .item span   { font-size: 0.8rem; }
+        .empty { color: #555; text-align: center; padding: 15px; }
+
+        .history { margin-top: 15px; max-height: 150px; overflow-y: auto; }
+        .history h3 { color: #aaa; font-size: 0.9rem; margin-bottom: 8px; }
+        .history-item {
+            padding: 6px 10px; border-radius: 6px;
+            margin-bottom: 5px; font-size: 0.82rem;
+            background: #0f3460; color: #aaa;
+        }
+
+        .size-badge {
+            display: inline-block; background: #e94560;
+            color: white; border-radius: 50%;
+            width: 24px; height: 24px;
+            text-align: center; line-height: 24px;
+            font-size: 0.8rem; margin-left: 8px;
+        }
     </style>
 </head>
 <body>
-    <h1>🧱 Stacks vs Queues</h1>
 
-    {% if message %}
-    <div class="message">{{ message }}</div>
-    {% endif %}
+<h1>🧱 Stacks vs Queues</h1>
+<p class="subtitle">Stack and Queue operations with history!</p>
 
-    <div class="container">
+<div class="container">
 
-        <!-- STACK -->
-        <div class="box">
-            <h2>📚 Stack (LIFO)</h2>
-            <form method="POST">
-                {% csrf_token %}
-                <input type="text" name="value" placeholder="Enter value">
-                <br><br>
-                <button type="submit" name="action" value="push">Push ⬆</button>
-                <button type="submit" name="action" value="pop">Pop ⬇</button>
-            </form>
-            <h3>Stack items:</h3>
-            {% for item in stack reversed %}
-                <div class="item">{{ item }}</div>
+    <!-- STACK SIDE -->
+    <div class="box">
+        <h2>📚 Stack <span class="size-badge">{{ stack_size }}</span></h2>
+        <p>LIFO — Last In First Out</p>
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="input-row">
+                <input type="number" name="value" placeholder="Enter number...">
+            </div>
+            <div class="btn-row">
+                <button type="submit" name="action" value="push" class="btn-green">Push ⬆</button>
+                <button type="submit" name="action" value="pop" class="btn-red">Pop ⬇</button>
+                <button type="submit" name="action" value="clear_stack" class="btn-clear">Clear 🗑️</button>
+            </div>
+        </form>
+
+        <!-- Stack items -->
+        {% for item in stack reversed %}
+            {% if forloop.first %}
+                <div class="item item-top">
+                    <span>{{ item }}</span>
+                    <span>← TOP</span>
+                </div>
+            {% elif forloop.last %}
+                <div class="item item-bottom">
+                    <span>{{ item }}</span>
+                    <span>← BOTTOM</span>
+                </div>
+            {% else %}
+                <div class="item item-normal">
+                    <span>{{ item }}</span>
+                </div>
+            {% endif %}
+        {% empty %}
+            <div class="empty">Stack is empty</div>
+        {% endfor %}
+
+        <!-- Stack History -->
+        <div class="history">
+            <h3>📋 Stack History:</h3>
+            {% for item in stack_history reversed %}
+                <div class="history-item">{{ item }}</div>
             {% empty %}
-                <p>Stack is empty</p>
+                <div class="empty">No operations yet</div>
             {% endfor %}
         </div>
-
-        <!-- QUEUE -->
-        <div class="box">
-            <h2>🚶 Queue (FIFO)</h2>
-            <form method="POST">
-                {% csrf_token %}
-                <input type="text" name="value" placeholder="Enter value">
-                <br><br>
-                <button type="submit" name="action" value="enqueue">Enqueue ➡</button>
-                <button type="submit" name="action" value="dequeue">Dequeue ⬅</button>
-            </form>
-            <h3>Queue items:</h3>
-            {% for item in queue %}
-                <div class="item">{{ item }}</div>
-            {% empty %}
-                <p>Queue is empty</p>
-            {% endfor %}
-        </div>
-
     </div>
+
+    <!-- QUEUE SIDE -->
+    <div class="box">
+        <h2>🚶 Queue <span class="size-badge">{{ queue_size }}</span></h2>
+        <p>FIFO — First In First Out</p>
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="input-row">
+                <input type="number" name="value" placeholder="Enter number...">
+            </div>
+            <div class="btn-row">
+                <button type="submit" name="action" value="enqueue" class="btn-green">Enqueue ➡</button>
+                <button type="submit" name="action" value="dequeue" class="btn-red">Dequeue ⬅</button>
+                <button type="submit" name="action" value="clear_queue" class="btn-clear">Clear 🗑️</button>
+            </div>
+        </form>
+
+        <!-- Queue items -->
+        {% for item in queue %}
+            {% if forloop.first %}
+                <div class="item item-top">
+                    <span>{{ item }}</span>
+                    <span>← FRONT</span>
+                </div>
+            {% elif forloop.last %}
+                <div class="item item-bottom">
+                    <span>{{ item }}</span>
+                    <span>← BACK</span>
+                </div>
+            {% else %}
+                <div class="item item-normal">
+                    <span>{{ item }}</span>
+                </div>
+            {% endif %}
+        {% empty %}
+            <div class="empty">Queue is empty</div>
+        {% endfor %}
+
+        <!-- Queue History -->
+        <div class="history">
+            <h3>📋 Queue History:</h3>
+            {% for item in queue_history reversed %}
+                <div class="history-item">{{ item }}</div>
+            {% empty %}
+                <div class="empty">No operations yet</div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+
+
 </body>
 </html>
