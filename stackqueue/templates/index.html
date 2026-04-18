@@ -5,10 +5,40 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial; background: #1a1a2e; min-height: 100vh; padding: 30px; }
-        h1 { text-align: center; color: #e94560; font-size: 2.5rem; margin-bottom: 5px; }
-        .subtitle { text-align: center; color: #aaa; margin-bottom: 30px; }
+        h1 { text-align: center; color: #00b4d8; font-size: 2.5rem; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #aaa; margin-bottom: 20px; }
 
-        .container { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; }
+        .input-section {
+            display: flex; justify-content: center;
+            gap: 10px; margin-bottom: 15px; flex-wrap: wrap;
+        }
+        input {
+            padding: 12px 20px; border-radius: 8px;
+            border: 1px solid #0f3460; background: #0f3460;
+            color: white; font-size: 1rem; width: 400px;
+        }
+        input::placeholder { color: #aaa; }
+
+        .btn-row {
+            display: flex; justify-content: center;
+            gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
+        }
+        button {
+            padding: 12px 20px; border: none;
+            border-radius: 8px; cursor: pointer;
+            font-size: 0.95rem; font-weight: bold;
+            transition: all 0.2s;
+        }
+        button:hover { opacity: 0.85; transform: scale(1.03); }
+        .btn-green  { background: #4CAF50; color: white; }
+        .btn-red    { background: #e94560; color: white; }
+        .btn-orange { background: #f39c12; color: white; }
+        .btn-clear  { background: #555; color: white; }
+
+        .container {
+            display: flex; justify-content: center;
+            gap: 20px; flex-wrap: wrap; margin-top: 20px;
+        }
 
         .box {
             background: #16213e; padding: 25px;
@@ -17,28 +47,9 @@
             border: 1px solid #0f3460;
         }
         .box h2 { color: #e94560; margin-bottom: 5px; }
-        .box p { color: #aaa; font-size: 0.85rem; margin-bottom: 15px; }
+        .box p  { color: #aaa; font-size: 0.85rem; margin-bottom: 15px; }
 
-        .input-row { display: flex; gap: 8px; margin-bottom: 10px; }
-        input {
-            flex: 1; padding: 10px; border-radius: 8px;
-            border: 1px solid #0f3460; background: #0f3460;
-            color: white; font-size: 1rem;
-        }
-        input::placeholder { color: #aaa; }
-
-        .btn-row { display: flex; gap: 8px; margin-bottom: 15px; }
-        button {
-            flex: 1; padding: 10px; border: none;
-            border-radius: 8px; cursor: pointer;
-            font-size: 0.9rem; font-weight: bold;
-            transition: all 0.2s;
-        }
-        button:hover { opacity: 0.85; transform: scale(1.03); }
-        .btn-green { background: #4CAF50; color: white; }
-        .btn-red   { background: #e94560; color: white; }
-        .btn-clear { background: #555; color: white; }
-
+        /* Items */
         .item {
             padding: 10px 15px; border-radius: 8px;
             margin-bottom: 6px; font-size: 0.95rem;
@@ -47,16 +58,24 @@
         .item-top    { background: #1a472a; color: #4CAF50; border: 1px solid #4CAF50; }
         .item-bottom { background: #4a1020; color: #e94560; border: 1px solid #e94560; }
         .item-normal { background: #0f3460; color: white; }
-        .item span   { font-size: 0.8rem; }
-        .empty { color: #555; text-align: center; padding: 15px; }
+        .item span   { font-size: 0.8rem; opacity: 0.8; }
+        .empty { color: #555; text-align: center; padding: 15px; font-size:0.9rem; }
 
-        .history { margin-top: 15px; max-height: 150px; overflow-y: auto; }
-        .history h3 { color: #aaa; font-size: 0.9rem; margin-bottom: 8px; }
-        .history-item {
-            padding: 6px 10px; border-radius: 6px;
-            margin-bottom: 5px; font-size: 0.82rem;
+        /* Log */
+        .log {
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .log h3 { color: #aaa; font-size: 0.9rem; margin-bottom: 8px; }
+        .log-item {
+            padding: 7px 12px; border-radius: 6px;
+            margin-bottom: 5px; font-size: 0.85rem;
             background: #0f3460; color: #aaa;
         }
+        .log-item.push    { border-left: 3px solid #4CAF50; color: #4CAF50; }
+        .log-item.pop     { border-left: 3px solid #e94560; color: #e94560; }
+        .log-item.error   { border-left: 3px solid #f39c12; color: #f39c12; }
 
         .size-badge {
             display: inline-block; background: #e94560;
@@ -65,33 +84,49 @@
             text-align: center; line-height: 24px;
             font-size: 0.8rem; margin-left: 8px;
         }
+
+        .divider {
+            text-align: center; color: #aaa;
+            font-size: 0.8rem; margin: 10px 0;
+            border-top: 1px solid #0f3460;
+            padding-top: 10px;
+        }
     </style>
 </head>
 <body>
 
 <h1>🧱 Stacks vs Queues</h1>
-<p class="subtitle">Stack and Queue operations with history!</p>
+<p class="subtitle">Enter numbers with spaces — e.g: 1 34 56 78 9</p>
+
+<form method="POST">
+    {% csrf_token %}
+    <div class="input-section">
+        <input type="text" name="value"
+               placeholder="Enter numbers with spaces: 1 34 56 78 9">
+    </div>
+    <div class="btn-row">
+        <button type="submit" name="action" value="push" class="btn-green">
+            Push + Enqueue ⬆
+        </button>
+        <button type="submit" name="action" value="pop" class="btn-red">
+            Pop Stack ⬇
+        </button>
+        <button type="submit" name="action" value="dequeue" class="btn-orange">
+            Dequeue Queue ⬅
+        </button>
+        <button type="submit" name="action" value="clear" class="btn-clear">
+            Clear All 🗑️
+        </button>
+    </div>
+</form>
 
 <div class="container">
 
-    <!-- STACK SIDE -->
+    <!-- STACK -->
     <div class="box">
         <h2>📚 Stack <span class="size-badge">{{ stack_size }}</span></h2>
         <p>LIFO — Last In First Out</p>
 
-        <form method="POST">
-            {% csrf_token %}
-            <div class="input-row">
-                <input type="number" name="value" placeholder="Enter number...">
-            </div>
-            <div class="btn-row">
-                <button type="submit" name="action" value="push" class="btn-green">Push ⬆</button>
-                <button type="submit" name="action" value="pop" class="btn-red">Pop ⬇</button>
-                <button type="submit" name="action" value="clear_stack" class="btn-clear">Clear 🗑️</button>
-            </div>
-        </form>
-
-        <!-- Stack items -->
         {% for item in stack reversed %}
             {% if forloop.first %}
                 <div class="item item-top">
@@ -112,35 +147,27 @@
             <div class="empty">Stack is empty</div>
         {% endfor %}
 
-        <!-- Stack History -->
-        <div class="history">
-            <h3>📋 Stack History:</h3>
-            {% for item in stack_history reversed %}
-                <div class="history-item">{{ item }}</div>
+        <div class="divider">📋 Stack Operations Log</div>
+        <div class="log">
+            {% for log in stack_log %}
+                {% if "pushed" in log %}
+                    <div class="log-item push">{{ log }}</div>
+                {% elif "popped" in log %}
+                    <div class="log-item pop">{{ log }}</div>
+                {% else %}
+                    <div class="log-item error">{{ log }}</div>
+                {% endif %}
             {% empty %}
                 <div class="empty">No operations yet</div>
             {% endfor %}
         </div>
     </div>
 
-    <!-- QUEUE SIDE -->
+    <!-- QUEUE -->
     <div class="box">
         <h2>🚶 Queue <span class="size-badge">{{ queue_size }}</span></h2>
         <p>FIFO — First In First Out</p>
 
-        <form method="POST">
-            {% csrf_token %}
-            <div class="input-row">
-                <input type="number" name="value" placeholder="Enter number...">
-            </div>
-            <div class="btn-row">
-                <button type="submit" name="action" value="enqueue" class="btn-green">Enqueue ➡</button>
-                <button type="submit" name="action" value="dequeue" class="btn-red">Dequeue ⬅</button>
-                <button type="submit" name="action" value="clear_queue" class="btn-clear">Clear 🗑️</button>
-            </div>
-        </form>
-
-        <!-- Queue items -->
         {% for item in queue %}
             {% if forloop.first %}
                 <div class="item item-top">
@@ -161,11 +188,16 @@
             <div class="empty">Queue is empty</div>
         {% endfor %}
 
-        <!-- Queue History -->
-        <div class="history">
-            <h3>📋 Queue History:</h3>
-            {% for item in queue_history reversed %}
-                <div class="history-item">{{ item }}</div>
+        <div class="divider">📋 Queue Operations Log</div>
+        <div class="log">
+            {% for log in queue_log %}
+                {% if "enqueued" in log %}
+                    <div class="log-item push">{{ log }}</div>
+                {% elif "dequeued" in log %}
+                    <div class="log-item pop">{{ log }}</div>
+                {% else %}
+                    <div class="log-item error">{{ log }}</div>
+                {% endif %}
             {% empty %}
                 <div class="empty">No operations yet</div>
             {% endfor %}
