@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stacks vs Queues</title>
+    <style>
+        body { font-family: Arial; background: #f0f0f0; text-align: center; padding: 30px; }
+        h1 { color: #333; }
+        .container { display: flex; justify-content: center; gap: 50px; margin-top: 30px; }
+        .box { background: white; padding: 20px; border-radius: 10px; width: 300px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .box h2 { color: #4CAF50; }
+        input { padding: 8px; width: 60%; border-radius: 5px; border: 1px solid #ccc; }
+        button { padding: 8px 15px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; background: #4CAF50; color: white; }
+        button:hover { background: #45a049; }
+        .item { background: #e8f5e9; margin: 5px; padding: 8px; border-radius: 5px; }
+        .message { background: #fff3cd; padding: 10px; border-radius: 8px; margin: 20px auto; width: 400px; }
+    </style>
+</head>
+<body>
+    <h1>🧱 Stacks vs Queues</h1>
+
+    {% if message %}
+    <div class="message">{{ message }}</div>
+    {% endif %}
+
+    <div class="container">
+
+        <!-- STACK -->
+        <div class="box">
+            <h2>📚 Stack (LIFO)</h2>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="text" name="value" placeholder="Enter value">
+                <br><br>
+                <button type="submit" name="action" value="push">Push ⬆</button>
+                <button type="submit" name="action" value="pop">Pop ⬇</button>
+            </form>
+            <h3>Stack items:</h3>
+            {% for item in stack reversed %}
+                <div class="item">{{ item }}</div>
+            {% empty %}
+                <p>Stack is empty</p>
+            {% endfor %}
+        </div>
+
+        <!-- QUEUE -->
+        <div class="box">
+            <h2>🚶 Queue (FIFO)</h2>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="text" name="value" placeholder="Enter value">
+                <br><br>
+                <button type="submit" name="action" value="enqueue">Enqueue ➡</button>
+                <button type="submit" name="action" value="dequeue">Dequeue ⬅</button>
+            </form>
+            <h3>Queue items:</h3>
+            {% for item in queue %}
+                <div class="item">{{ item }}</div>
+            {% empty %}
+                <p>Queue is empty</p>
+            {% endfor %}
+        </div>
+
+    </div>
+</body>
+</html>
