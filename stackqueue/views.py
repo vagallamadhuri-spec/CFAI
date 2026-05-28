@@ -2,52 +2,47 @@ from django.shortcuts import render
 
 stack = []
 queue = []
-stack_history = []
-queue_history = []
+stack_log = []
+queue_log = []
 
 def home(request):
     if request.method == "POST":
         action = request.POST.get("action")
-        value = request.POST.get("value", "")
+        values = request.POST.get("value", "")
 
-        # Stack operations
-        if action == "push" and value:
-            stack.append(value)
-            stack_history.append(f"✅ Pushed '{value}' to Stack")
+        if action == "push" and values:
+            numbers = values.split()
+            for num in numbers:
+                stack.append(num)
+                queue.append(num)
+                stack_log.append(f"✅ {num} is pushed to Stack")
+                queue_log.append(f"✅ {num} is enqueued to Queue")
 
         elif action == "pop":
             if stack:
                 removed = stack.pop()
-                stack_history.append(f"🗑️ Popped '{removed}' from TOP")
+                stack_log.append(f"🗑️ {removed} is popped from Stack")
             else:
-                stack_history.append("❌ Stack is Empty!")
-
-        # Queue operations
-        elif action == "enqueue" and value:
-            queue.append(value)
-            queue_history.append(f"✅ Enqueued '{value}' to Queue")
+                stack_log.append("❌ Stack is Empty!")
 
         elif action == "dequeue":
             if queue:
                 removed = queue.pop(0)
-                queue_history.append(f"🗑️ Dequeued '{removed}' from FRONT")
+                queue_log.append(f"🗑️ {removed} is dequeued from Queue")
             else:
-                queue_history.append("❌ Queue is Empty!")
+                queue_log.append("❌ Queue is Empty!")
 
-        # Clear operations
-        elif action == "clear_stack":
+        elif action == "clear":
             stack.clear()
-            stack_history.clear()
-
-        elif action == "clear_queue":
             queue.clear()
-            queue_history.clear()
+            stack_log.clear()
+            queue_log.clear()
 
     return render(request, "index.html", {
         "stack": stack,
         "queue": queue,
-        "stack_history": stack_history,
-        "queue_history": queue_history,
+        "stack_log": stack_log,
+        "queue_log": queue_log,
         "stack_size": len(stack),
         "queue_size": len(queue),
     })
