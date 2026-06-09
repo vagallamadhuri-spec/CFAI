@@ -5,6 +5,9 @@ queue = []
 stack_log = []
 queue_log = []
 
+def landing(request):
+    return render(request, "home.html")
+
 def home(request):
     if request.method == "POST":
         action = request.POST.get("action")
